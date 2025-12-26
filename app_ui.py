@@ -5,7 +5,7 @@ import mediapipe as mp
 import math
 import numpy as np
 
-# --- הגדרות עמוד ועיצוב ---
+# --- הגדרות עמוד ---
 st.set_page_config(page_title="ניתוח זריקה מקצועי", layout="wide")
 
 st.markdown(
@@ -23,15 +23,9 @@ st.markdown(
 st.title("🏀 AI Basketball Coach: ניתוח ביו-מכני כפול")
 st.markdown("<div style='text-align:center; color:#666;'>ניתוח שלב הדריכה (Set Point) ושלב השחרור (Release)</div>", unsafe_allow_html=True)
 
-# --- אתחול MediaPipe (מנגנון בטיחות לענן) ---
-try:
-    # ניסיון ראשון: יבוא רגיל
-    mp_pose = mp.solutions.pose
-    mp_drawing = mp.solutions.drawing_utils
-except AttributeError:
-    # ניסיון שני: תיקון לשרתי לינוקס
-    import mediapipe.python.solutions.pose as mp_pose
-    import mediapipe.python.solutions.drawing_utils as mp_drawing
+# --- אתחול MediaPipe (הגדרות סטנדרטיות) ---
+mp_pose = mp.solutions.pose
+mp_drawing = mp.solutions.drawing_utils
 
 # --- פונקציות עזר ---
 def calculate_angle(a, b, c):
@@ -110,17 +104,17 @@ if uploaded_file is not None:
     progress_bar.empty()
     status_text.empty()
 
-    # סינון פריימים ריקים
+    # סינון פריימים
     valid_frames = [f for f in frames_data if f is not None]
     
     if not valid_frames:
         st.error("לא זוהה שחקן בסרטון.")
     else:
-        # 1. זיהוי Release Point (יד הכי גבוהה)
+        # 1. זיהוי Release Point
         release_idx = min(range(len(valid_frames)), key=lambda i: valid_frames[i]['wrist_y'])
         release_data = valid_frames[release_idx]
         
-        # 2. זיהוי Set Point (כיפוף ברכיים מקסימלי לפני השחרור)
+        # 2. זיהוי Set Point
         pre_release = valid_frames[:release_idx]
         if pre_release:
             set_idx = min(range(len(pre_release)), key=lambda i: pre_release[i]['knee_angle'])
